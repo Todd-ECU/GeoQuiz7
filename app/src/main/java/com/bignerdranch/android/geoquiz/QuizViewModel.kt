@@ -14,7 +14,7 @@ class QuizViewModel : ViewModel(){
         Question(R.string.question_americas, true),
         Question(R.string.question_asia, true)
     )
-
+    // at least I can comment here!!
     var currentIndex = 0
 
     val currentQuestionAnswer: Boolean

@@ -1,16 +1,18 @@
 package com.bignerdranch.android.geoquiz
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.android.synthetic.main.activity_main.*
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
@@ -28,42 +30,47 @@ class MainActivity : AppCompatActivity() {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
     }
 
-
+       @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate(Bundle?) called")
-        setContentView(R.layout.activity_main)
+           super.onCreate(savedInstanceState)
+           Log.d(TAG, "onCreate(Bundle?) called")
+           setContentView(R.layout.activity_main)
 
-        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?:0
-        quizViewModel.currentIndex = currentIndex
+           val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+           quizViewModel.currentIndex = currentIndex
 
-        trueButton=findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-        nextButton = findViewById(R.id.next_button)
-        cheatButton = findViewById(R.id.cheat_button)
-        questionTextView = findViewById(R.id.question_text_view)
+           trueButton = findViewById(R.id.true_button)
+           falseButton = findViewById(R.id.false_button)
+           nextButton = findViewById(R.id.next_button)
+           cheatButton = findViewById(R.id.cheat_button)
+           questionTextView = findViewById(R.id.question_text_view)
 
-        trueButton.setOnClickListener{view: View ->
-            checkAnswer(true)
-        }
-        falseButton.setOnClickListener { view: View ->
-            checkAnswer(false)
-        }
+           trueButton.setOnClickListener { view: View ->
+               checkAnswer(true)
+           }
+           falseButton.setOnClickListener { view: View ->
+               checkAnswer(false)
+           }
 
-        nextButton.setOnClickListener{
-            quizViewModel.moveToNext()
-            updateQuestion()
-        }
+           nextButton.setOnClickListener {
+               quizViewModel.moveToNext()
+               updateQuestion()
+           }
 
-        cheatButton.setOnClickListener {
-            // Start CheatActivity
-            val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
-        }
-
-         updateQuestion()
-        }
+           cheatButton.setOnClickListener {view ->
+               // Start CheatActivity
+               val answerIsTrue = quizViewModel.currentQuestionAnswer
+               val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                   val options = ActivityOptions
+                    .makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                   startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
+               } else {
+                   startActivityForResult(intent, REQUEST_CODE_CHEAT)
+               }
+           }
+           updateQuestion()
+       }
 
     override fun onStart() {
         super.onStart()
